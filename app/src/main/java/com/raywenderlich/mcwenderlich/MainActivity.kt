@@ -33,6 +33,7 @@ package com.raywenderlich.mcwenderlich
 
 import android.os.Bundle
 import android.os.Handler
+import android.os.Message
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -44,6 +45,8 @@ class MainActivity : AppCompatActivity() {
 
   private lateinit var foodListAdapter: FoodListAdapter
   private lateinit var uiHandler: UiHandler
+  private lateinit var foodRunnable: FoodRunnable
+  private lateinit var orderHandlerThread: OrderHandlerThread
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -56,6 +59,21 @@ class MainActivity : AppCompatActivity() {
     uiHandler.setAdapter(foodListAdapter)
   }
 
+  override fun onStart() {
+    super.onStart()
+    //1 init orderHandlerThread and pass UI as parameter
+    orderHandlerThread = OrderHandlerThread(uiHandler)
+    //2 start orderHandlerThread
+    orderHandlerThread.start()
+    //3 init fooodRunable
+    foodRunnable = FoodRunnable(orderHandlerThread)
+    //4 invoke setMaxOrder
+    foodRunnable.setMaxOrders(10)
+    foodRunnable.start()
+  }
+
+
+
   class UiHandler : Handler() {
 
     private lateinit var weakRefFoodListAdapter: WeakReference<FoodListAdapter>
@@ -67,6 +85,22 @@ class MainActivity : AppCompatActivity() {
 
     fun setRecyclerView(foodRecyclerView: RecyclerView) {
       weakRefOrderRecyclerView = WeakReference(foodRecyclerView)
+    }
+
+    private fun addAndNotifyForOrder(foodOrder: FoodOrder, position: Int) {
+      weakRefFoodListAdapter.get()?.getOrderList()?.add(foodOrder)
+      weakRefOrderRecyclerView.get()?.adapter?.notifyItemInserted(position)
+    }
+
+    override fun handleMessage(msg: Message?) {
+      super.handleMessage(msg)
+      //1 get current order size
+      val position = weakRefFoodListAdapter.get()?.getOrderList()?.size
+      //2 add upcoming oeder from OrderHandler
+      addAndNotifyForOrder(msg?.obj as FoodOrder, position!!)
+      //3
+      weakRefOrderRecyclerView.get()?.smoothScrollToPosition(weakRefFoodListAdapter
+              .get()?.itemCount!!)
     }
   }
 }
