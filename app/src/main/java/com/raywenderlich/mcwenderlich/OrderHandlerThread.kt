@@ -25,6 +25,11 @@ class OrderHandlerThread (private var uiHandler: MainActivity.UiHandler) : Handl
         }
     }
 
+    //invoked before Looper starts looping the message
+    override fun onLooperPrepared() {
+        super.onLooperPrepared()
+        handler = getHandler(looper)
+    }
 
     private fun getHandler(looper: Looper): Handler {
         //1//creating and returning a handler object and passes the looper through its
@@ -55,6 +60,8 @@ class OrderHandlerThread (private var uiHandler: MainActivity.UiHandler) : Handl
                 //3 sends message to the handler
                 handler?.sendMessage(message)
             }
+
+
 
         }
     }
