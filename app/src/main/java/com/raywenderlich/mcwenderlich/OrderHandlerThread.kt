@@ -46,6 +46,16 @@ class OrderHandlerThread (private var uiHandler: MainActivity.UiHandler) : Handl
                 //8 send message to the UIhandler
                 uiHandler.sendMessage(processedMessage)
             }
+
+            fun sendOrder(foodOrder: FoodOrder) {
+                //1 creates new message object
+                val message = Message()
+                //2 wrap order to the message
+                message.obj = foodOrder
+                //3 sends message to the handler
+                handler?.sendMessage(message)
+            }
+
         }
     }
 
