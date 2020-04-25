@@ -33,7 +33,7 @@ package com.raywenderlich.mcwenderlich
 
 import java.util.*
 
-class FoodRunnable() : Runnable {
+class FoodRunnable( private var orderHandlerThread: OrderHandlerThread) : Runnable {
 
   private var thread: Thread = Thread(this)
   private var alive: Boolean = false
@@ -42,6 +42,21 @@ class FoodRunnable() : Runnable {
 
   override fun run() {
     alive = true
+    while (alive && count < size) {
+      count++
+      //1 get random order name
+      val foodName = getRandomOrderName()
+      //2 get random order price
+      val foodPrice = getRandomOrderPrice()
+      //3 send object to orderHandlerThread
+      orderHandlerThread.sendOrder(FoodOrder(foodName, foodPrice))
+      //4
+      try {
+        Thread.sleep(1000)
+      } catch (exception: InterruptedException){
+        exception.printStackTrace()
+      }
+    }
   }
 
   fun start() {
@@ -92,4 +107,9 @@ class FoodRunnable() : Runnable {
       else -> 50f
     }
   }
+  fun setMaxOrders(size: Int) {
+    this.size = size
+  }
+
+
 }
