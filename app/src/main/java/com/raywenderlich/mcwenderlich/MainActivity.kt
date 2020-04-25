@@ -72,6 +72,11 @@ class MainActivity : AppCompatActivity() {
     foodRunnable.start()
   }
 
+  override fun onDestroy() {
+    super.onDestroy()
+    foodRunnable.stop()
+    orderHandlerThread.quit()
+  }
 
 
   class UiHandler : Handler() {
