@@ -24,4 +24,29 @@ class OrderHandlerThread (private var uiHandler: MainActivity.UiHandler) : Handl
 
         }
     }
+
+
+    private fun getHandler(looper: Looper): Handler {
+        //1//creating and returning a handler object and passes the looper through its
+        //    //parameters
+        return object:Handler(looper) {
+            //2 handles the upcoming order
+            override fun handleMessage(msg: Message?) {
+                super.handleMessage(msg)
+                //3 gets order from handler
+                val foodOrder = msg?.obj as FoodOrder
+                //4 calls converter
+                foodOrder.foodPrice = convertCurrency(foodOrder.foodPrice)
+                //5 add side dishes to the order
+                foodOrder.sideOrder = attachSideOrder()
+                //6 creates message to wrap the order
+                val processedMessage = Message()
+                //7 puts processed foodOrder in message
+                processedMessage.obj = foodOrder
+                //8 send message to the UIhandler
+                uiHandler.sendMessage(processedMessage)
+            }
+        }
+    }
+
 }
